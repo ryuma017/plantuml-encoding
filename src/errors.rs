@@ -17,6 +17,8 @@ impl convert::From<hex::FromHexError> for FromPlantumlError {
 
 impl convert::From<io::Error> for FromPlantumlError {
     fn from(err: io::Error) -> Self {
-        FromPlantumlError(format!("there is a problem during deflate decoding: {err}"))
+        FromPlantumlError(format!(
+            "there is a problem during deflate decoding: `{err}`"
+        ))
     }
 }

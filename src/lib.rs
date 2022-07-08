@@ -87,17 +87,17 @@ mod tests {
                 "~h407374617274756d6c0a50554d4c202d3e20525553543a2048454c4c4f200a40656e64756d6c"
                     .to_string()
             )
-        )
+        );
     }
 
     #[test]
     fn it_decodes_plantuml_hex_error() {
         assert_eq!(
             decode_plantuml_hex("12345"),
-            Err(errors::FromPlantumlError(
+            Err(FromPlantumlError(
                 "there is a problem during hex decoding: `Odd number of digits`".to_string()
             ))
-        )
+        );
     }
 
     #[test]
@@ -105,7 +105,7 @@ mod tests {
         assert_eq!(
             encode_plantuml_deflate("@startuml\nPUML -> RUST: HELLO \n@enduml"),
             Ok("0IO0sVz0StHXSdHrRMmAK5LDJ20jFY1ILLDKEY18HKnCJo0AG6LkP7LjR000".to_string())
-        )
+        );
     }
 
     #[test]
@@ -113,6 +113,17 @@ mod tests {
         assert_eq!(
             decode_plantuml_deflate("0IO0sVz0StHXSdHrRMmAK5LDJ20jFY1ILLDKEY18HKnCJo0AG6LkP7LjR000"),
             Ok("@startuml\nPUML -> RUST: HELLO \n@enduml".to_string())
-        )
+        );
+    }
+
+    #[test]
+    fn it_decode_plantuml_deflate_error() {
+        assert_eq!(
+            decode_plantuml_deflate("4444"),
+            Err(FromPlantumlError(
+                "there is a problem during deflate decoding: `deflate decompression error`"
+                    .to_string()
+            ))
+        );
     }
 }
