@@ -1,4 +1,9 @@
 mod errors;
+mod utils;
+
+use flate2::write;
+
+use std::io::prelude::*;
 
 pub use crate::errors::FromPlantumlError;
 
@@ -14,6 +19,15 @@ pub fn decode_plantuml_hex<T: AsRef<str>>(hex: T) -> Result<String, FromPlantuml
     let decoded_bytes = hex::decode(plantuml_hex_trimmed)?;
 
     Ok(String::from_utf8(decoded_bytes)?)
+}
+
+pub fn encode_plantuml_deflate<T: AsRef<str>>(plantuml: T) -> Result<String, FromPlantumlError> {
+    let mut encoder = write::DeflateEncoder::new(Vec::new(), flate2::Compression::default());
+    encoder.write_all(plantuml.as_ref().as_bytes())?;
+
+    let encoded_bytes = encoder.finish()?;
+
+    Ok(utils::encode_plantuml_for_deflate(&encoded_bytes))
 }
 
 #[cfg(test)]
@@ -60,6 +74,14 @@ mod tests {
             Err(errors::FromPlantumlError(
                 "there is a problem during hex decoding: `Odd number of digits`".to_string()
             ))
+        )
+    }
+
+    #[test]
+    fn it_encodes_plantuml_deflate() {
+        assert_eq!(
+            encode_plantuml_deflate("@startuml\nPUML -> RUST: HELLO \n@enduml"),
+            Ok("0IO0sVz0StHXSdHrRMmAK5LDJ20jFY1ILLDKEY18HKnCJo0AG6LkP7LjR000".to_string())
         )
     }
 }
