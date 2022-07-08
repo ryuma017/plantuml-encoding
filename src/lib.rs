@@ -1,8 +1,10 @@
 #[cfg(test)]
 mod tests {
     #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
+    fn it_encodes_plantuml_hex() {
+        assert_eq!(
+        encodes_plantuml_hex("&startuml\nPUML -> RUST: HELLO \n@enduml"),
+        ""
+        );
     }
 }
