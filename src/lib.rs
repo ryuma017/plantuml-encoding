@@ -30,8 +30,27 @@ pub fn encode_plantuml_deflate<T: AsRef<str>>(plantuml: T) -> Result<String, Fro
     Ok(utils::encode_plantuml_for_deflate(&encoded_bytes))
 }
 
-pub fn decodes_plantuml_deflate<T: AsRef<str>>(plantuml: T) -> Result<String, FromPlantumlError> {
-    unimplemented!()
+#[allow(clippy::unused_io_amount)]
+pub fn decode_plantuml_deflate<T: AsRef<str>>(
+    plantuml_deflated: T,
+) -> Result<String, errors::FromPlantumlError> {
+    let result = match utils::decode_plantuml_for_deflate(plantuml_deflated.as_ref()) {
+        Some(r) => r,
+        None => {
+            return Err(errors::FromPlantumlError(
+                "internal decoding error (out of bounds or similar)".to_string(),
+            ));
+        }
+    };
+
+    let mut deflater = write::DeflateDecoder::new(Vec::new());
+    for item in result.into_iter() {
+        // write_all produces `failed to write whole buffer` issue with some data
+        deflater.write(&[item])?;
+    }
+    let decoded_bytes = deflater.finish()?;
+
+    Ok(String::from_utf8(decoded_bytes)?)
 }
 
 #[cfg(test)]
@@ -92,10 +111,8 @@ mod tests {
     #[test]
     fn it_decodes_plantuml_deflate() {
         assert_eq!(
-            decodes_plantuml_deflate(
-                "0IO0sVz0StHXSdHrRMmAK5LDJ20jFY1ILLDKEY18HKnCJo0AG6LkP7LjR000"
-            ),
-            Ok("@starttuml\nPUML -> RUST: HELLO \n@enduml".to_string())
+            decode_plantuml_deflate("0IO0sVz0StHXSdHrRMmAK5LDJ20jFY1ILLDKEY18HKnCJo0AG6LkP7LjR000"),
+            Ok("@startuml\nPUML -> RUST: HELLO \n@enduml".to_string())
         )
     }
 }
