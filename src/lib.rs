@@ -4,6 +4,14 @@ pub fn encode_plantuml_hex(plantuml: &str) -> String {
     String::from("~h") + &hex
 }
 
+pub fn decode_plantuml_hex(hex: &str) -> String {
+    let plantuml_hex_trimmed = hex.trim_start_matches("~h");
+
+    let decoded_bytes = hex::decode(plantuml_hex_trimmed).unwrap();
+
+    String::from_utf8(decoded_bytes).unwrap()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
