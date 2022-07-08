@@ -30,6 +30,10 @@ pub fn encode_plantuml_deflate<T: AsRef<str>>(plantuml: T) -> Result<String, Fro
     Ok(utils::encode_plantuml_for_deflate(&encoded_bytes))
 }
 
+pub fn decodes_plantuml_deflate<T: AsRef<str>>(plantuml: T) -> Result<String, FromPlantumlError> {
+    unimplemented!()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -82,6 +86,16 @@ mod tests {
         assert_eq!(
             encode_plantuml_deflate("@startuml\nPUML -> RUST: HELLO \n@enduml"),
             Ok("0IO0sVz0StHXSdHrRMmAK5LDJ20jFY1ILLDKEY18HKnCJo0AG6LkP7LjR000".to_string())
+        )
+    }
+
+    #[test]
+    fn it_decodes_plantuml_deflate() {
+        assert_eq!(
+            decodes_plantuml_deflate(
+                "0IO0sVz0StHXSdHrRMmAK5LDJ20jFY1ILLDKEY18HKnCJo0AG6LkP7LjR000"
+            ),
+            Ok("@starttuml\nPUML -> RUST: HELLO \n@enduml".to_string())
         )
     }
 }
