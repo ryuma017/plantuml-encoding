@@ -2,10 +2,10 @@ mod errors;
 
 pub use crate::errors::FromPlantumlError;
 
-pub fn encode_plantuml_hex<T: AsRef<str>>(plantuml: T) -> String {
+pub fn encode_plantuml_hex<T: AsRef<str>>(plantuml: T) -> Result<String, FromPlantumlError> {
     let hex = hex::encode(plantuml.as_ref());
 
-    String::from("~h") + &hex
+    Ok(String::from("~h") + &hex)
 }
 
 pub fn decode_plantuml_hex<T: AsRef<str>>(hex: T) -> Result<String, FromPlantumlError> {
@@ -23,15 +23,20 @@ mod tests {
     #[test]
     fn it_encodes_plantuml_hex() {
         assert_eq!(
-        encode_plantuml_hex("@startuml\nPUML -> RUST: HELLO \n@enduml"),
-        "~h407374617274756d6c0a50554d4c202d3e20525553543a2048454c4c4f200a40656e64756d6c"
+            encode_plantuml_hex("@startuml\nPUML -> RUST: HELLO \n@enduml"),
+            Ok(
+                "~h407374617274756d6c0a50554d4c202d3e20525553543a2048454c4c4f200a40656e64756d6c"
+                    .to_string()
+            )
         );
     }
 
     #[test]
     fn it_decodes_plantuml_hex() {
         assert_eq!(
-            decode_plantuml_hex("~h407374617274756d6c0a50554d4c202d3e20525553543a2048454c4c4f200a40656e64756d6c"),
+            decode_plantuml_hex(
+                "~h407374617274756d6c0a50554d4c202d3e20525553543a2048454c4c4f200a40656e64756d6c"
+            ),
             Ok("@startuml\nPUML -> RUST: HELLO \n@enduml".to_string())
         );
     }
@@ -41,7 +46,10 @@ mod tests {
     fn it_encodes_plantuml_hex_from_string() {
         assert_eq!(
             encode_plantuml_hex("@startuml\nPUML -> RUST: HELLO \n@enduml".to_string()),
-            "~h407374617274756d6c0a50554d4c202d3e20525553543a2048454c4c4f200a40656e64756d6c"
+            Ok(
+                "~h407374617274756d6c0a50554d4c202d3e20525553543a2048454c4c4f200a40656e64756d6c"
+                    .to_string()
+            )
         )
     }
 
