@@ -40,4 +40,14 @@ mod tests {
             "~h407374617274756d6c0a50554d4c202d3e20525553543a2048454c4c4f200a40656e64756d6c"
         )
     }
+
+    #[test]
+    fn it_decodes_plantuml_hex_error() {
+        assert_eq!(
+            decode_plantuml_hex("12345"),
+            Err(error::FromPlantumlError(
+                "there is a problem during hex decoding: `Odd number of digits`".to_string()
+            ))
+        )
+    }
 }
