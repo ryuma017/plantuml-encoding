@@ -62,3 +62,50 @@ pub fn encode_plantuml_for_deflate(encoded_bytes: &[u8]) -> String {
 
     result
 }
+
+fn decode_6_bit(s: String) -> Option<u8> {
+    let c = s.chars().next()? as u8;
+
+    if s == "_" {
+        return Some(63);
+    };
+    if s == "-" {
+        return Some(62);
+    }
+    if c >= 97 {
+        return Some(c - 61);
+    }
+    if c >= 65 {
+        return Some(c - 55);
+    }
+    if c >= 48 {
+        return Some(c - 48);
+    }
+
+    Some(0)
+}
+
+fn extract_3_bytes(chars: &[char]) -> Option<[u8; 3]> {
+    let mut chars = chars.iter();
+
+    let c1 = decode_6_bit(String::from(*chars.next()?))?;
+    let c2 = decode_6_bit(String::from(*chars.next()?))?;
+    let c3 = decode_6_bit(String::from(*chars.next()?))?;
+    let c4 = decode_6_bit(String::from(*chars.next()?))?;
+
+    let b1 = c1 << 2 | (c2 >> 4) & 0x3F;
+    let b2 = (c2 << 4) & 0xF0 | (c3 >> 2) & 0xF;
+    let b3 = (c3 << 6) & 0xC0 | c4 & 0x3F;
+
+    Some([b1, b2, b3])
+}
+
+pub fn decode_plantuml_for_deflate(decoded_string: &str) -> Option<Vec<u8>> {
+    let mut result = vec![];
+
+    for chunk in decoded_string.chars().collect::<Vec<char>>().chunks(4) {
+        result.extend(extract_3_bytes(chunk)?);
+    }
+
+    Some(result)
+}

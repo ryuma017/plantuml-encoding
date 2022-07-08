@@ -3,7 +3,7 @@ mod utils;
 
 use flate2::write;
 
-use std::io::prelude::*;
+use std::io::Write;
 
 pub use crate::errors::FromPlantumlError;
 
